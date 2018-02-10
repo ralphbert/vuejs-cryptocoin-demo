@@ -1,40 +1,50 @@
 <template>
-    <div class="container pt-4">
-        <div class="form-group">
-            <label for="language" v-t="'settings.language'"></label>
-            <select class="form-control" id="language" @change="updateLanguage" :value="language">
-                <option v-for="availableLanguage in availableLanguages"
-                        :key="availableLanguage"
-                        :value="availableLanguage"
-                        v-t="'language.' + availableLanguage">{{ availableLanguage }}</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="interval" v-t="'settings.interval'"></label>
-            <select class="form-control" id="interval" @change="updateInterval" :value="interval">
-                <option v-for="i in [5000, 10000, 15000]"
-                        :key="i"
-                        :value="i">{{ i / 1000 }} s</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="currencies" v-t="'settings.currencies'"></label>
-            <select class="form-control" id="currencies" @change="updateCurrency" :value="currency">
-                <option v-for="availableCurrency in availableCurrencies"
-                        :key="availableCurrency">{{ availableCurrency }}</option>
-            </select>
-        </div>
+<div class="container pt-4">
+  <div class="row">
+    <div class="col-12 col-sm-6">
+      <CoinBrowser/>
     </div>
+    <div class="col-12 col-sm-6">
+      <div class="form-group">
+        <label for="language" v-t="'settings.language'"></label>
+        <SelectControl id="language"
+                       @change="updateLanguage"
+                       :selection="language"
+                       :values="languageSelectValues"/>
+      </div>
+
+      <div class="form-group">
+        <label for="interval" v-t="'settings.interval'"></label>
+        <SelectControl id="interval"
+                       @change="updateInterval"
+                       :selection="interval"
+                       :values="[5000, 10000, 15000]"/>
+      </div>
+
+      <div class="form-group">
+        <label for="currencies" v-t="'settings.currencies'"></label>
+        <SelectControl id="currencies"
+                       @change="updateCurrency"
+                       :selection="currency"
+                       :values="availableCurrencies"/>
+      </div>
+    </div>
+  </div>
+</div>
 </template>
 
 <script>
 import { mapMutations, mapState } from 'vuex';
 import { SET_INTERVAL, SET_CURRENCY, SET_LANGUAGE } from '@/vuex/mutationTypes';
+import CoinBrowser from '@/components/CoinBrowser';
+import SelectControl from '@/components/Select';
 
 export default {
   name: 'Settings',
+  components: {
+    CoinBrowser,
+    SelectControl,
+  },
   data() {
     return {};
   },
@@ -48,6 +58,12 @@ export default {
       availableLanguages: state => state.settings.availableLanguages,
       language: state => state.settings.language,
     }),
+    languageSelectValues() {
+      return this.availableLanguages.map(lang => ({
+        value: lang,
+        text: this.$t(`language.${lang}`),
+      }));
+    },
   },
   methods: {
     ...mapMutations({
@@ -55,14 +71,14 @@ export default {
       setCurrency: SET_CURRENCY,
       setLanguage: SET_LANGUAGE,
     }),
-    updateInterval(e) {
-      this.setInterval(e.target.value);
+    updateInterval(value) {
+      this.setInterval(value);
     },
-    updateCurrency(e) {
-      this.setCurrency(e.target.value);
+    updateCurrency(value) {
+      this.setCurrency(value);
     },
-    updateLanguage(e) {
-      this.setLanguage(e.target.value);
+    updateLanguage(value) {
+      this.setLanguage(value);
     },
   },
 };

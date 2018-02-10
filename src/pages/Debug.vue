@@ -1,11 +1,13 @@
 <script>
 import Arrow, { DIRECTIONS } from '@/components/Arrow';
 import ChangeIndicator from '@/components/ChangeIndicator';
+import CoinBrowser from '@/components/CoinBrowser';
 
 export default {
   components: {
     Arrow,
     ChangeIndicator,
+    CoinBrowser,
   },
   data() {
     return {
@@ -30,6 +32,7 @@ export default {
   <div>
     Arrow: <Arrow :direction="direction" /><br>
     ChangeIndicator: <ChangeIndicator :value="newValue" /><br>
+    <CoinBrowser />
   </div>
 </div>
 </template>

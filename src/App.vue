@@ -1,34 +1,13 @@
-<template>
-    <div id="app">
-        <div v-if="!initialized">
-            Loading...
-        </div>
-        <div v-else class="mt-4">
-            <ul class="nav nav-tabs justify-content-center">
-                <li class="nav-item">
-                    <router-link class="nav-link" :to="{ name: 'Index' }"
-                                 v-t="'navigation.index'"/>
-                </li>
-                <li class="nav-item">
-                    <router-link class="nav-link" :to="{ name: 'Settings' }"
-                                 v-t="'navigation.settings'"/>
-                </li>
-                <li class="nav-item">
-                    <router-link class="nav-link" :to="{ name: 'Debug' }"
-                                 v-t="'DEBUG'"/>
-                </li>
-            </ul>
-        </div>
-        <router-view/>
-    </div>
-</template>
-
 <script>
 import { mapState } from 'vuex';
 import { SET_INITIALIZED } from '@/vuex/mutationTypes';
+import Spinner from '@/components/Spinner';
 
 export default {
   name: 'App',
+  components: {
+    Spinner,
+  },
   data() {
     return {};
   },
@@ -39,15 +18,53 @@ export default {
   },
   mounted() {
     if (!this.initialized) {
-      setTimeout(() => {
-        this.$store.commit(SET_INITIALIZED, true);
-      }, 3000);
+      this.$store.dispatch('getCoins').then(() => {
+        setTimeout(() => {
+          this.$store.commit(SET_INITIALIZED, true);
+        }, 1000);
+      });
     }
   },
 };
 </script>
 
+<template>
+<div id="app">
+    <transition name="fade">
+        <div class="cover" v-if="!initialized" key="loading">
+            <Spinner />
+        </div>
+        <div v-else key="content">
+            <div class="mt-4">
+                <ul class="nav nav-tabs justify-content-center">
+                    <li class="nav-item">
+                        <router-link class="nav-link" :to="{ name: 'Index' }"
+                                     v-t="'navigation.index'"/>
+                    </li>
+                    <li class="nav-item">
+                        <router-link class="nav-link" :to="{ name: 'Settings' }"
+                                     v-t="'navigation.settings'"/>
+                    </li>
+                    <li class="nav-item">
+                        <router-link class="nav-link" :to="{ name: 'Debug' }"
+                                     v-t="'DEBUG'"/>
+                    </li>
+                </ul>
+            </div>
+            <router-view/>
+        </div>
+    </transition>
+</div>
+</template>
+
 <style lang="scss">
     @import '~bootstrap/scss/bootstrap.scss';
     @import 'assets/scss/transitions';
+
+    .cover {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+    }
 </style>
