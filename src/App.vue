@@ -13,6 +13,10 @@
                     <router-link class="nav-link" :to="{ name: 'Settings' }"
                                  v-t="'navigation.settings'"/>
                 </li>
+                <li class="nav-item">
+                    <router-link class="nav-link" :to="{ name: 'Debug' }"
+                                 v-t="'DEBUG'"/>
+                </li>
             </ul>
         </div>
         <router-view/>
