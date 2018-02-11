@@ -1,8 +1,8 @@
 <script>
 import { mapState, mapMutations, mapGetters } from 'vuex';
 import { TOGGLE_COIN_SELECTION } from '@/vuex/mutationTypes';
-import CoinList from '@/components/CoinList';
-import CoinListItem from '@/components/CoinListItem';
+import ListGroup from '@/components/ListGroup';
+import ListGroupCoinItem from '@/components/ListGroupCoinItem';
 
 export default {
   data() {
@@ -11,8 +11,8 @@ export default {
     };
   },
   components: {
-    CoinList,
-    CoinListItem,
+    ListGroup,
+    ListGroupCoinItem,
   },
   computed: {
     ...mapGetters(['selectedCoinIds']),
@@ -26,8 +26,14 @@ export default {
       }
 
       return this.coins
-        .filter(c => c.CoinName.toLowerCase()
-          .indexOf(this.term.toLowerCase()) !== -1 && this.selectedCoinIds.indexOf(c.Id) === -1)
+        .filter((c) => {
+          if (this.selectedCoinIds.indexOf(c.Id) !== -1) {
+            return false;
+          }
+
+          const strings = [c.Symbol.toLowerCase(), c.CoinName.toLowerCase()];
+          return strings.filter(t => t.indexOf(this.term.toLowerCase()) !== -1).length;
+        })
         .slice(0, 10);
     },
   },
@@ -50,14 +56,14 @@ export default {
     <h3 v-t="'coinBrowser.selections.title'"></h3>
 
     <div v-if="selections.length <= 0" v-t="'coinBrowser.selections.empty'"></div>
-    <CoinList v-else>
-      <CoinListItem
+    <list-group v-else>
+      <list-group-coin-item
           v-for="coin in selections"
           :coin="coin"
           :key="coin.Id"
           @click="toggleCoinSelection(coin)"
       />
-    </CoinList>
+    </list-group>
   </div>
 
   <div class="coin-browser-search">
@@ -69,15 +75,15 @@ export default {
              ref="filter">
     </div>
 
-    <CoinList>
-      <CoinListItem
+    <list-group>
+      <list-group-coin-item
           v-for="coin in filteredCoins"
           :selected="selections.indexOf(coin) !== -1"
           :coin="coin"
           :key="coin.Id"
           @click="clearAndSelect(coin)"
       />
-    </CoinList>
+    </list-group>
 
     <small class="form-text text-muted text-center"
            v-t="{ path: 'coinBrowser.totalText', args: { count: coins.length } }"></small>

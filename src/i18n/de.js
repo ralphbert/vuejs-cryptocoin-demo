@@ -23,4 +23,8 @@ export default {
     },
     totalText: '{count} Coins verfügbar',
   },
+  wallet: {
+    goToSettings: 'Jetzt Coins hinzufügen',
+    empty: 'Es wurden noch keine Coins hinzugefügt',
+  },
 };

@@ -21,7 +21,7 @@ export default {
       this.$store.dispatch('getCoins').then(() => {
         setTimeout(() => {
           this.$store.commit(SET_INITIALIZED, true);
-        }, 1000);
+        }, 200);
       });
     }
   },

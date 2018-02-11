@@ -1,9 +1,15 @@
 <script>
+
 import Arrow, { DIRECTIONS } from '@/components/Arrow';
-import filters from '@/filters';
+import filters, { roundFilter } from '@/filters';
+import { SET_CHANGE_INDICATOR_VALUE } from '@/vuex/mutationTypes';
 
 export default {
   props: {
+    name: {
+      require: false,
+      type: String,
+    },
     value: {
       type: Number,
       default: null,
@@ -15,17 +21,37 @@ export default {
   },
   data() {
     return {
+      hasChanged: false,
       direction: DIRECTIONS.RIGHT,
-      oldValue: 0,
+      oldValue: null,
     };
   },
   computed: {
     delta() {
-      return this.value - this.oldValue;
+      return roundFilter(this.value) - roundFilter(this.oldValue);
+    },
+    safeOldValue() {
+      if (this.name) {
+        return this.$store.state.changeIndicators[this.name];
+      }
+
+      return this.oldValue;
     },
   },
+  watch: {
+    delta() {
+      if (this.name) {
+        this.$store.commit(SET_CHANGE_INDICATOR_VALUE, { name: this.name, value: this.delta });
+      }
+    },
+  },
+  beforeMount() {
+    if (!this.$store.state.changeIndicators[this.name]) {
+      this.$store.commit(SET_CHANGE_INDICATOR_VALUE, { name: this.name, value: 0 });
+    }
+  },
   mounted() {
-    this.oldValue = this.value;
+    this.oldValue = this.safeOldValue;
     this.$watch('value', (newValue, oldValue) => {
       if (newValue > oldValue) {
         this.direction = DIRECTIONS.UP;
@@ -42,10 +68,11 @@ export default {
 </script>
 
 <template>
+
 <span class="change-indicator">
   <Arrow :direction="direction"/>
   <span class="change">
-    <template v-if="delta > 0">+</template>{{delta | round}}
+    (<template v-if="delta > 0">+</template>{{delta | round}})
   </span>
 </span>
 </template>
@@ -67,7 +94,7 @@ export default {
   &.arrow-left,
   &.arrow-right {
     &, & ~ .change {
-      color: #333;
+      color: #ccc;
     }
   }
 }

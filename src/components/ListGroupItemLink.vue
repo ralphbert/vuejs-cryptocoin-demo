@@ -5,33 +5,33 @@ export default {
       type: Boolean,
       default: false,
     },
-    coin: {
-      type: Object,
-      required: true,
+    imageUrl: {
+      type: String,
+      required: false,
     },
   },
   methods: {
-    onClick(coin) {
-      this.$emit('click', coin);
+    onClick(e) {
+      this.$emit('click', e);
     },
   },
 };
 </script>
 
 <template>
-<a class="list-group-item list-group-item-action coin-list-item"
+<a class="list-group-item list-group-item-action"
    :class="{ 'active': selected }"
    href="#"
    @click.prevent="onClick">
-  <div class="row">
-    <div class="col-auto"><img class="img-fluid" v-if="coin.ImageUrl" :src="coin.ImageUrl" /></div>
-    <div class="col">{{ coin.CoinName }}</div>
+  <div class="row align-items-center">
+    <div class="col-auto"><img class="img-fluid" v-if="imageUrl" :src="imageUrl" /></div>
+    <div class="col"><slot></slot></div>
   </div>
 </a>
 </template>
 
 <style lang="scss" scoped>
-.coin-list-item {
+.list-group-item {
   img {
     width: 30px;
     height: auto;

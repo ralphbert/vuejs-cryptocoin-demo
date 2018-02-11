@@ -10,7 +10,7 @@ Vue.use(Vuex);
 
 const store = new Vuex.Store({
   plugins: [createPersistedState({
-    paths: ['settings', 'wallet'],
+    paths: ['settings', 'wallet', 'rates', 'changeIndicators'],
   })],
   state: {
     initialized: false,
@@ -24,11 +24,46 @@ const store = new Vuex.Store({
     },
     wallet: {
       selections: [],
+      rates: {
+        updated: null,
+        values: {},
+      },
+      amounts: {},
     },
+    changeIndicators: {},
   },
   getters: {
     selectedCoinIds(state) {
       return state.wallet.selections.map(c => c.Id);
+    },
+    selectedCoinSymbols(state) {
+      return state.wallet.selections.map(c => c.Symbol);
+    },
+    coinValues(state) {
+      const rates = state.wallet.rates.values;
+
+      return state.wallet.selections.map((coin) => {
+        const symbol = coin.Symbol;
+        let rate = 0;
+
+        try {
+          rate = rates[symbol][state.settings.currency];
+        } catch (e) {
+          // ignore the error
+        }
+
+        const amount = state.wallet.amounts[symbol];
+
+        return {
+          symbol,
+          coin,
+          rate,
+          ledger: {
+            amount,
+            total: rate * amount,
+          },
+        };
+      });
     },
   },
   mutations: {
@@ -51,9 +86,23 @@ const store = new Vuex.Store({
     [mutationTypes.TOGGLE_COIN_SELECTION](state, coin) {
       if (state.wallet.selections.indexOf(coin) === -1) {
         state.wallet.selections.push(coin);
+        state.wallet.amounts[coin.Symbol] = 0;
       } else {
         state.wallet.selections = state.wallet.selections.filter(c => c !== coin);
+        delete state.wallet.amounts[coin.Symbol];
       }
+    },
+    [mutationTypes.SET_RATES](state, rates) {
+      state.wallet.rates.values = rates.values;
+      state.wallet.rates.updated = rates.updated;
+    },
+    [mutationTypes.SET_AMOUNT](state, payload) {
+      const amounts = { ...state.wallet.amounts };
+      amounts[payload.symbol] = payload.amount;
+      state.wallet.amounts = amounts;
+    },
+    [mutationTypes.SET_CHANGE_INDICATOR_VALUE](state, payload) {
+      state.changeIndicators[payload.name] = payload.value;
     },
   },
   actions: {
@@ -76,6 +125,32 @@ const store = new Vuex.Store({
         }).catch((error) => {
           reject(error);
         });
+      });
+    },
+    getRates(context) {
+      const currency = context.state.settings.currency;
+      let symbols = context.getters.selectedCoinSymbols;
+
+      if (symbols.length <= 0) {
+        return Promise.resolve();
+      }
+
+      symbols = [...symbols, currency];
+      const query = symbols.join(',').toUpperCase();
+
+      return new Promise((resolve, reject) => {
+        axios.get(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${query}&tsyms=${query}`)
+          .then((result) => {
+            const values = result.data;
+            const rates = {
+              values,
+              updated: new Date(),
+            };
+            context.commit(mutationTypes.SET_RATES, rates);
+            resolve(rates);
+          }).catch((error) => {
+            reject(error);
+          });
       });
     },
   },
