@@ -26,5 +26,6 @@ export default {
   wallet: {
     goToSettings: 'Jetzt Coins hinzufügen',
     empty: 'Es wurden noch keine Coins hinzugefügt',
+    lastUpdate: 'Letztes Update am',
   },
 };

@@ -1,5 +1,6 @@
 <script>
 
+import { mapState } from 'vuex';
 import Arrow, { DIRECTIONS } from '@/components/Arrow';
 import filters, { roundFilter } from '@/filters';
 import { SET_CHANGE_INDICATOR_VALUE } from '@/vuex/mutationTypes';
@@ -7,7 +8,7 @@ import { SET_CHANGE_INDICATOR_VALUE } from '@/vuex/mutationTypes';
 export default {
   props: {
     name: {
-      require: false,
+      require: true,
       type: String,
     },
     value: {
@@ -21,48 +22,63 @@ export default {
   },
   data() {
     return {
-      hasChanged: false,
       direction: DIRECTIONS.RIGHT,
-      oldValue: null,
     };
   },
-  computed: {
-    delta() {
-      return roundFilter(this.value) - roundFilter(this.oldValue);
-    },
-    safeOldValue() {
-      if (this.name) {
-        return this.$store.state.changeIndicators[this.name];
-      }
-
-      return this.oldValue;
-    },
-  },
-  watch: {
-    delta() {
-      if (this.name) {
-        this.$store.commit(SET_CHANGE_INDICATOR_VALUE, { name: this.name, value: this.delta });
-      }
-    },
-  },
-  beforeMount() {
-    if (!this.$store.state.changeIndicators[this.name]) {
-      this.$store.commit(SET_CHANGE_INDICATOR_VALUE, { name: this.name, value: 0 });
-    }
-  },
-  mounted() {
-    this.oldValue = this.safeOldValue;
-    this.$watch('value', (newValue, oldValue) => {
-      if (newValue > oldValue) {
+  methods: {
+    update() {
+      if (this.newValue > this.prevValue) {
         this.direction = DIRECTIONS.UP;
-      } else if (newValue < oldValue) {
+      } else if (this.newValue < this.prevValue) {
         this.direction = DIRECTIONS.DOWN;
       } else {
         this.direction = DIRECTIONS.RIGHT;
       }
+    },
+  },
+  computed: {
+    ...mapState({
+      newValue(state) {
+        if (state.changeIndicators[this.name]) {
+          return state.changeIndicators[this.name].newValue;
+        }
 
-      this.oldValue = oldValue;
-    });
+        return this.value;
+      },
+      prevValue(state) {
+        if (state.changeIndicators[this.name]) {
+          return state.changeIndicators[this.name].prevValue;
+        }
+
+        return this.value;
+      },
+    }),
+    delta() {
+      return roundFilter(this.newValue) - roundFilter(this.prevValue);
+    },
+  },
+  watch: {
+    value(prevValue, newValue) {
+      this.$store.commit(SET_CHANGE_INDICATOR_VALUE, {
+        name: this.name,
+        prevValue,
+        newValue,
+      });
+    },
+    delta() {
+      this.update();
+    },
+  },
+  mounted() {
+    if (!this.$store.state.changeIndicators[this.name]) {
+      this.$store.commit(SET_CHANGE_INDICATOR_VALUE, {
+        name: this.name,
+        prevValue: this.value,
+        newValue: this.value,
+      });
+    } else {
+      this.update();
+    }
   },
 };
 </script>

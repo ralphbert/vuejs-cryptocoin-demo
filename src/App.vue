@@ -1,6 +1,6 @@
 <script>
 import { mapState } from 'vuex';
-import { SET_INITIALIZED } from '@/vuex/mutationTypes';
+import { SET_INITIALIZED, SET_LANGUAGE } from '@/vuex/mutationTypes';
 import Spinner from '@/components/Spinner';
 
 export default {
@@ -24,6 +24,9 @@ export default {
         }, 200);
       });
     }
+
+    // force i18n update
+    this.$store.commit(SET_LANGUAGE, this.$store.state.settings.language);
   },
 };
 </script>
@@ -38,16 +41,16 @@ export default {
             <div class="mt-4">
                 <ul class="nav nav-tabs justify-content-center">
                     <li class="nav-item">
-                        <router-link class="nav-link" :to="{ name: 'Index' }"
-                                     v-t="'navigation.index'"/>
+                        <router-link
+                            class="nav-link"
+                            :to="{ name: 'Index' }"
+                            v-t="'navigation.index'"/>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link" :to="{ name: 'Settings' }"
-                                     v-t="'navigation.settings'"/>
-                    </li>
-                    <li class="nav-item">
-                        <router-link class="nav-link" :to="{ name: 'Debug' }"
-                                     v-t="'DEBUG'"/>
+                        <router-link
+                            class="nav-link"
+                            :to="{ name: 'Settings' }"
+                            v-t="'navigation.settings'"/>
                     </li>
                 </ul>
             </div>
@@ -58,13 +61,13 @@ export default {
 </template>
 
 <style lang="scss">
-    @import '~bootstrap/scss/bootstrap.scss';
-    @import 'assets/scss/transitions';
+@import '~bootstrap/scss/bootstrap.scss';
+@import 'assets/scss/transitions';
 
-    .cover {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-    }
+.cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+}
 </style>

@@ -26,5 +26,6 @@ export default {
   wallet: {
     goToSettings: 'Add coins',
     empty: 'No coins added yet',
+    lastUpdate: 'Updated at',
   },
 };

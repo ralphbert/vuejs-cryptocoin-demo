@@ -35,6 +35,7 @@ export default {
     ...mapState({
       interval: state => state.settings.interval,
       currency: state => state.settings.currency,
+      updated: state => state.wallet.rates.updated,
     }),
     ...mapGetters({
       items: 'coinValues',
@@ -72,7 +73,7 @@ export default {
                        :value="item.ledger.amount">
               </div>
               <div class="col-6 text-right">
-                {{ item.ledger.amount * item.rate | round }} {{currency}}
+                {{ item.ledger.amount * item.rate | round(2) }} {{currency}}
               </div>
             </div>
           </div>
@@ -80,10 +81,14 @@ export default {
       </list-group-item>
       <list-group-item class="list-group-item-light">
         <div class="text-right font-weight-bold">
-          Total: {{total | round}} {{currency}} <ChangeIndicator name="total" :value="total" />
+          Total: {{total | round(2) }} {{currency}} <ChangeIndicator name="total" :value="total" />
         </div>
       </list-group-item>
     </list-group>
+
+    <div class="text-center pt-2 pb-2">
+      <small class="text-muted">{{ $t('wallet.lastUpdate') }} {{ updated | date }}</small>
+    </div>
   </div>
   <div v-else class="text-center">
     <p>{{ $t('wallet.empty') }}</p>
