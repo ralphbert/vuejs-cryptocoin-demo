@@ -54,7 +54,7 @@ export default {
 </script>
 
 <template>
-<div class="container-fluid mt-4 mb-4">
+<div class="container mt-4 mb-4">
   <div v-if="items.length">
     <list-group>
       <list-group-item :image-url="item.coin.ImageUrl"
